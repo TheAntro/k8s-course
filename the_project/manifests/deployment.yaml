@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-app-deployment
+  name: todo-dep
   labels:
     app: todo
 spec:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: todo
-          image: waltherbeach/todo
+          image: waltherbeach/todo:25-12-1
           ports:
             - containerPort: 3001
           env:
