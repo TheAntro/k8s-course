@@ -1,0 +1,97 @@
+:root {
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --text-color: #222;
+  --muted-color: #666;
+  --focus-color: Highlight;
+  --content-max-width: 70ch;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+p {
+  margin: 0 0 1rem 0;
+  color: var(--muted-color);
+}
+
+.lead {
+  font-size: 1.125rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 1.25rem 0 0.5rem;
+  line-height: 1.15;
+  font-weight: 700;
+}
+h2 {
+  font-size: 1.5rem;
+  margin: 1rem 0 0.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+}
+h3 {
+  font-size: 1.25rem;
+  margin: 0.9rem 0 0.4rem;
+  font-weight: 600;
+}
+h4 {
+  font-size: 1rem;
+  margin: 0.75rem 0 0.35rem;
+  font-weight: 600;
+}
+h5 {
+  font-size: 0.95rem;
+  margin: 0.6rem 0 0.3rem;
+  font-weight: 600;
+}
+h6 {
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0.25rem;
+  color: var(--muted-color);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--muted-color);
+}
+.eyebrow {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-color);
+}
+
+ul,
+ol {
+  margin: 0 0 1rem 1.25rem;
+}
+blockquote {
+  margin: 0 0 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid #efefef;
+  color: var(--muted-color);
+}
+
+a:focus-visible {
+  outline: 3px solid var(--focus-color, #2684ff);
+  outline-offset: 2px;
+}
