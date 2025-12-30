@@ -1,8 +1,8 @@
-Deploy the app and make it accessible via port forwarding:
+Create the cluster and make app available via service:
 
 ```bash
+k3d cluster create --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2
 kubectl apply -f manifests
-kubectl port-forward <pod-name> 3003:3001
 ```
 
-Then access the app in http://localhost:3003
+Then access the app in http://localhost:8082
