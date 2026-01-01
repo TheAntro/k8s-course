@@ -14,4 +14,9 @@ spec:
     spec:
       containers:
         - name: hashgenerator
-          image: waltherbeach/dwk-app1:25-12-1
+          image: waltherbeach/dwk-app1:26-01-1
+          ports:
+            - containerPort: 5001
+          env:
+            - name: PORT
+              value: "5001"
