@@ -20,5 +20,5 @@ app.get("/status", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Log output listening on port ${PORT}`);
+  console.log(`Hashgenerator listening on port ${PORT}`);
 });

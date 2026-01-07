@@ -2,9 +2,9 @@ FROM node:24-slim
 
 WORKDIR /app
 
-COPY package*.json .
+COPY package*.json ./
 
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 COPY . .
 

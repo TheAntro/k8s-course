@@ -1,7 +1,6 @@
 {
-  "name": "log_output",
+  "name": "hashgenerator",
   "version": "1.0.0",
-  "description": "Deploy the app by running `kubectl apply -f manifests`",
   "license": "ISC",
   "author": "Valtteri Ranta",
   "type": "module",
