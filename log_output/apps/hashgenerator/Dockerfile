@@ -1,6 +1,8 @@
 FROM node:24-slim
 
 WORKDIR /app
+ENV LOG_PATH=/var/log/shared/hash.log
+RUN mkdir -p /var/log/shared
 
 COPY package*.json ./
 
@@ -10,4 +12,4 @@ COPY . .
 
 USER node
 
-CMD ["npm", "start"]
+CMD ["node", "index.js"]

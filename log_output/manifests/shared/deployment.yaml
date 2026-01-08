@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hashreader-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hashreader
+  template:
+    metadata:
+      labels:
+        app: hashreader
+    spec:
+      volumes:
+        - name: shared-log
+          emptyDir: {}
+      containers:
+        - name: hashreader
+          image: waltherbeach/hashreader:26-01-3
+          volumeMounts:
+            - name: shared-log
+              mountPath: /var/log/shared
+          ports:
+            - containerPort: 3001
+          env:
+            - name: PORT
+              value: "3001"
+        - name: hashgenerator
+          image: waltherbeach/hashgenerator:26-01-5
+          volumeMounts:
+            - name: shared-log
+              mountPath: /var/log/shared
