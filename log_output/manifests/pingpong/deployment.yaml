@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingpong-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingpong
+  template:
+    metadata:
+      labels:
+        app: pingpong
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      volumes:
+        - name: shared-count
+          persistentVolumeClaim:
+            claimName: count-claim
+      containers:
+        - name: pingpong
+          image: waltherbeach/pingpong:26-01-2
+          volumeMounts:
+            - name: shared-count
+              mountPath: /var/log/shared
+          ports:
+            - containerPort: 5002
+          env:
+            - name: PORT
+              value: "5002"
