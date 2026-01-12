@@ -14,9 +14,20 @@ spec:
       labels:
         app: todo
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: cache-claim
       containers:
         - name: todo
-          image: waltherbeach/todo:26-01-1
+          image: waltherbeach/todo:26-01-3
+          volumeMounts:
+            - name: cache
+              mountPath: /app/cache
           ports:
             - containerPort: 3001
           env:
