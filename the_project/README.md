@@ -7,10 +7,3 @@ kubectl apply -R -f manifests
 ```
 
 Then access the app in http://localhost:8081
-
-Restart the app to check that cache is persistent
-
-```bash
-kubectl rollout restart deployment todo-dep
-```
-`

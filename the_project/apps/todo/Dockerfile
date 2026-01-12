@@ -20,7 +20,6 @@ RUN npm ci --only=production && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/views ./views
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/css ./css
 
 # Create cache directory for PVC mount
 RUN mkdir -p /app/cache && chown node:node /app/cache

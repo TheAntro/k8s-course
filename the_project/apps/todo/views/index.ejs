@@ -1,7 +1,26 @@
-<h1>The project App</h1>
-<% if (imageUrl) { %>
+<div class="content">
+  <h1>The project App</h1>
+  <% if (imageUrl) { %>
   <img src="<%= imageUrl %>" alt="Random image from Lorem Picsum" />
-<% } else { %>
+  <% } else { %>
   <p>Image not available</p>
-<% } %>
-<p>DevOps with Kubernetes 2025/2026</p>
+  <form onsubmit="event.preventDefault()" aria-label="Add a new todo">
+    <label class="sr-only" for="new-todo-input">New todo</label>
+    <input
+      id="new-todo-input"
+      name="newTodo"
+      type="text"
+      aria-required="true"
+      maxlength="140"
+    />
+    <button type="submit">Create todo</button>
+  </form>
+  <% } %> <% if (todos.length > 0) { %>
+  <ul class="todo">
+    <% todos.forEach(function({ content }) { %>
+    <li><%= content %></li>
+    <% }) %>
+  </ul>
+  <% } %>
+  <p>DevOps with Kubernetes 2025/2026</p>
+</div>

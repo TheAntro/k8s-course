@@ -26,11 +26,11 @@ async function ensureCacheDir(): Promise<void> {
 // Download image and save to file
 async function downloadImage(url: string, filePath: string): Promise<void> {
   const response = await fetch(url);
-  
+
   if (!response.ok) {
     throw new Error(`Failed to download image: ${response.status}`);
   }
-  
+
   const buffer = await response.arrayBuffer();
   await fs.writeFile(filePath, Buffer.from(buffer));
 }
@@ -40,12 +40,12 @@ async function isCacheValid(): Promise<boolean> {
   try {
     await fs.access(CACHE_FILE);
     await fs.access(CACHE_INFO_FILE);
-    
-    const cacheInfoData = await fs.readFile(CACHE_INFO_FILE, 'utf8');
+
+    const cacheInfoData = await fs.readFile(CACHE_INFO_FILE, "utf8");
     const cacheInfo = JSON.parse(cacheInfoData);
     const now = Date.now();
-    
-    return (now - cacheInfo.timestamp) < CACHE_DURATION;
+
+    return now - cacheInfo.timestamp < CACHE_DURATION;
   } catch {
     return false;
   }
@@ -54,21 +54,21 @@ async function isCacheValid(): Promise<boolean> {
 // Get image (cached or fresh)
 async function getImage(): Promise<string> {
   await ensureCacheDir();
-  
+
   // If cache is valid, return existing image
   if (await isCacheValid()) {
     console.log("Using cached image");
     return "/cached-image.jpg";
   }
-  
+
   // Download new image
   console.log("Downloading new image...");
   await downloadImage("https://picsum.photos/1200", CACHE_FILE);
-  
+
   // Save cache info
   const cacheInfo = { timestamp: Date.now() };
   await fs.writeFile(CACHE_INFO_FILE, JSON.stringify(cacheInfo));
-  
+
   console.log("New image cached");
   return "/cached-image.jpg";
 }
@@ -84,21 +84,28 @@ app.use("/cached-image.jpg", express.static(CACHE_FILE));
 app.use(expressEjsLayouts);
 app.set("layout", "layouts/main");
 
+const hardcodedTodos = [
+  { content: "Learn React" },
+  { content: "Learn Kubernetes" },
+  { content: "Learn Node.js" },
+  { content: "Write the next big thing" },
+];
+
 // Routes
 app.get("/", async (req: Request, res: Response): Promise<void> => {
+  let imageUrl = "";
   try {
-    const imageUrl = await getImage();
-    res.render("index", { 
-      title: "Todo App - Home",
-      imageUrl: imageUrl
-    });
+    imageUrl = await getImage();
   } catch (error) {
-    console.error("Error:", error);
-    res.render("index", { 
-      title: "Todo App - Home",
-      imageUrl: ""
-    });
+    console.error("Error while fetching image:", error);
+    imageUrl = "";
   }
+
+  res.render("index", {
+    title: "Todo App - Home",
+    imageUrl,
+    todos: hardcodedTodos,
+  });
 });
 
 // Server configuration
