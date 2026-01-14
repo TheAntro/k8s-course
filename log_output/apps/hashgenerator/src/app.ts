@@ -1,10 +1,9 @@
 import express from "express";
 import crypto from "crypto";
-import fs from "fs";
 
-const COUNT_PATH = process.env.COUNT_PATH;
-if (!COUNT_PATH) {
-  console.error("Missing required environment variable: LOG_PATH");
+const PINGPONG_URL = process.env.PINGPONG_URL;
+if (!PINGPONG_URL) {
+  console.error("Missing required environment variable: PINGPONG_URL");
   process.exit(1);
 }
 
@@ -21,19 +20,42 @@ setInterval(() => {
   updateInMemoryStatus();
 }, 5000);
 
-function readPingPongCount(): number {
-  if (!fs.existsSync(COUNT_PATH!)) return 0;
-  const content = fs.readFileSync(COUNT_PATH!, "utf8");
-  const trimmed = content.trim();
-  if (trimmed === "") return 0;
-  const parsed = parseInt(trimmed, 10);
-  return Number.isNaN(parsed) ? 0 : parsed;
+async function readPingPongCount(): Promise<number> {
+  // Call the PingPong service's /pings endpoint which returns JSON { pings: <number> }
+  try {
+    const url = `${PINGPONG_URL}/pings`;
+
+    // Use global fetch (Node 18+). If your runtime does not provide fetch, install a polyfill
+    // such as node-fetch and import it instead.
+    const resp = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    if (!resp.ok) {
+      console.error(
+        `PingPong /pings request failed: ${resp.status} ${resp.statusText}`
+      );
+      return 0;
+    }
+
+    const body = await resp.json();
+    if (body && typeof body.pings === "number") return body.pings;
+    if (body && typeof body.pings === "string") {
+      const parsed = parseInt(body.pings, 10);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    return 0;
+  } catch (err) {
+    console.error("Failed to fetch ping count from PingPong service:", err);
+    return 0;
+  }
 }
 
 const app = express();
 
-app.use((req: express.Request, res: express.Response) => {
-  const count = readPingPongCount();
+app.use(async (req: express.Request, res: express.Response) => {
+  const count = await readPingPongCount();
   const body = `${currentStatus || ""}\nPing / Pongs: ${count}`;
   res.type("text/plain").send(body);
 });

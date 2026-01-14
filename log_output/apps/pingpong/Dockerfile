@@ -11,8 +11,6 @@ RUN npm run build
 
 FROM node:24-slim
 WORKDIR /app
-ENV COUNT_PATH=/var/log/shared/pingpong_requests.count
-RUN mkdir -p /var/log/shared
 
 # Copy runtime artifacts from builder
 COPY --from=builder /app/package*.json ./

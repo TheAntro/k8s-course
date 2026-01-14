@@ -16,18 +16,13 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-      volumes:
-        - name: shared-count
-          persistentVolumeClaim:
-            claimName: count-claim
       containers:
         - name: hashgenerator
-          image: waltherbeach/hashgenerator:26-01-6
-          volumeMounts:
-            - name: shared-count
-              mountPath: /var/log/shared
+          image: waltherbeach/hashgenerator:26-01-7
           ports:
             - containerPort: 5001
           env:
             - name: PORT
               value: "5001"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:2346"

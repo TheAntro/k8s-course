@@ -16,16 +16,9 @@ spec:
         fsGroup: 1000
         runAsNonRoot: true
         runAsUser: 1000
-      volumes:
-        - name: shared-count
-          persistentVolumeClaim:
-            claimName: count-claim
       containers:
         - name: pingpong
-          image: waltherbeach/pingpong:26-01-2
-          volumeMounts:
-            - name: shared-count
-              mountPath: /var/log/shared
+          image: waltherbeach/pingpong:26-01-4
           ports:
             - containerPort: 5002
           env:
