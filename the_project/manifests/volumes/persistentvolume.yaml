@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  namespace: project
   name: shared-pv
 spec:
   storageClassName: shared-pv

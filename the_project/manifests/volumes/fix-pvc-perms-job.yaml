@@ -1,6 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  namespace: project
   name: fix-cache-perms
   labels:
     app: fix-cache-perms
