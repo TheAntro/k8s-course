@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: exercises
   name: hashgenerator-dep
 spec:
   replicas: 1
@@ -25,4 +26,4 @@ spec:
             - name: PORT
               value: "5001"
             - name: PINGPONG_URL
-              value: "http://pingpong-svc:2346"
+              value: "http://pingpong-svc.exercises:2346"
