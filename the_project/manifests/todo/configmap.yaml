@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+data:
+  todo_backend_url: "http://todo-backend-svc:1235"
+  photo_api_url: "https://picsum.photos"
