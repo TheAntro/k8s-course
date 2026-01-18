@@ -1,5 +1,6 @@
 import express from "express";
 import crypto from "crypto";
+import fs from "fs/promises";
 
 const PINGPONG_URL = process.env.PINGPONG_URL;
 if (!PINGPONG_URL) {
@@ -52,11 +53,32 @@ async function readPingPongCount(): Promise<number> {
   }
 }
 
+async function readInformation(): Promise<string> {
+  const infoPath = process.env.INFO_PATH;
+  if (!infoPath) {
+    console.error("INFO_PATH env variable missing, unable to read information");
+    return "";
+  }
+  try {
+    const info = await fs.readFile(infoPath, "utf-8");
+    return info;
+  } catch (err) {
+    console.error("Failed to read information");
+    return "";
+  }
+}
+
 const app = express();
 
 app.use(async (req: express.Request, res: express.Response) => {
   const count = await readPingPongCount();
-  const body = `${currentStatus || ""}\nPing / Pongs: ${count}`;
+  const info = await readInformation();
+  const message = process.env.MESSAGE || "";
+  const body = `
+  file content: ${info.trim()}
+  env variable: MESSAGE=${message}
+  ${currentStatus || ""}
+  Ping / Pongs: ${count}`;
   res.type("text/plain").send(body);
 });
 
