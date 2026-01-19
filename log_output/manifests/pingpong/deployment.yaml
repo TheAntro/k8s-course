@@ -19,9 +19,24 @@ spec:
         runAsUser: 1000
       containers:
         - name: pingpong
-          image: waltherbeach/pingpong:26-01-4
+          image: waltherbeach/pingpong:26-01-12
           ports:
             - containerPort: 5002
           env:
             - name: PORT
               value: "5002"
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: pingpong-db-config
+                  key: DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: pingpong-db-config
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pingpong-db-secret
+                  key: POSTGRES_PASSWORD
