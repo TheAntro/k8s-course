@@ -21,9 +21,24 @@ spec:
         fsGroup: 1000
       containers:
         - name: todo
-          image: waltherbeach/todo-backend:26-01-1
+          image: waltherbeach/todo-backend:26-01-3
           ports:
             - containerPort: 5001
           env:
             - name: PORT
               value: "5001"
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-db-config
+                  key: DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-db-config
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-secret
+                  key: POSTGRES_PASSWORD

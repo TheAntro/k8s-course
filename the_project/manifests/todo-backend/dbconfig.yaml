@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: project
+  name: todo-db-config
+data:
+  DB_NAME: "todo_db"
+  DB_HOST: "todo-db-svc"
