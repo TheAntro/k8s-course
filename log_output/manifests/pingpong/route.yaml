@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  namespace: exercises
+  name: pingpong-route
+spec:
+  parentRefs:
+  - name: log-output-gateway
+    namespace: exercises
+  rules:
+  - matches:
+    - path:
+        value: /pingpong
+    backendRefs:
+    - name: pingpong-svc
+      port: 80
