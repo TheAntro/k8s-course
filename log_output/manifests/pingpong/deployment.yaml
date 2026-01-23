@@ -19,7 +19,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: pingpong
-          image: waltherbeach/pingpong:26-01-13
+          image: waltherbeach/pingpong:26-01-15
           ports:
             - containerPort: 5002
           env:

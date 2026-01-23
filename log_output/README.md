@@ -1,12 +1,13 @@
-Create the cluster, namespace, db secret, apply manifests and get the pingpong LoadBalancer url:
+Create the cluster, namespace, db secret, apply manifests and get the Ingress url:
 
 ```bash
 gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-micro
 kubectl create namespace exercises
 kubens exercises
 kubectl create secret generic pingpong-db-secret --from-literal=POSTGRES_PASSWORD='<insert-password-here>' -n exercises
-kubectl apply -R -f manifests/pingpong
-kubectl get svc --watch
+kubectl apply -R -f manifests
+kubectl get ing --watch
 ```
 
-Then access the pingpong app in http://<load-balancer-url-here>/pingpong
+Then access the pingpong app in http://<ingress-address-here>/pingpong
+The access the log output app in http://<ingress-address-here>/

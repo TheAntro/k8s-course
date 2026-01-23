@@ -19,14 +19,14 @@ spec:
         fsGroup: 1000
       containers:
         - name: hashgenerator
-          image: waltherbeach/hashgenerator:26-01-10
+          image: waltherbeach/hashgenerator:26-01-11
           ports:
             - containerPort: 5001
           env:
             - name: PORT
               value: "5001"
             - name: PINGPONG_URL
-              value: "http://pingpong-svc.exercises:2346"
+              value: "http://pingpong-svc.exercises:80"
             - name: INFO_PATH
               value: "/etc/config/information.txt"
             - name: MESSAGE
