@@ -28,8 +28,6 @@ async function runMigrations() {
 
 const app = express();
 
-app.get("/", (req, res) => res.status(200).send("OK"));
-
 app.get("/pings", async (req, res) => {
   const { requestCounter } = schema;
   const result = await db
@@ -45,9 +43,9 @@ app.get("/pings", async (req, res) => {
   res.json({ pings: count });
 });
 
-app.get("/pingpong", async (req, res) => {
+app.get("/", async (req, res) => {
   const { requestCounter } = schema;
-  console.log("pingpong route requested, incrementing");
+  console.log("root route requested, incrementing");
   if (req.method === "GET") {
     try {
       const result = await db
