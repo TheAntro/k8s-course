@@ -4,7 +4,7 @@ metadata:
   namespace: project
   name: cache-claim
 spec:
-  storageClassName: shared-pv
+  storageClassName: standard-rwo
   accessModes:
     - ReadWriteOnce
   resources:

@@ -1,11 +1,13 @@
 Create the cluster, namespace, volume and make app available
 
 ```bash
-k3d cluster create --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2
+gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-micro
+gcloud container clusters update dwk-cluster --location=europe-north1-b --gateway-api=standard
 kubectl create namespace project
-docker exec k3d-k3s-default-agent-0 mkdir -p /tmp/kube
+kubens project
 kubectl create secret generic todo-db-secret --from-literal=POSTGRES_PASSWORD='<insert-password-here>' -n project
-kubectl apply -R -f manifests
+kubectl apply -k manifests
+kubectl get gateway --watch
 ```
 
-Then access the app in http://localhost:8081
+Then access the app in http://<gateway-address>

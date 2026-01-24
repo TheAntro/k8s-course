@@ -25,7 +25,7 @@ spec:
             claimName: cache-claim
       containers:
         - name: todo
-          image: waltherbeach/todo:26-01-8
+          image: waltherbeach/todo
           volumeMounts:
             - name: cache
               mountPath: /app/cache

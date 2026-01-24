@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: todo-config
 data:
-  todo_backend_url: "http://todo-backend-svc:1235"
+  todo_backend_url: "http://todo-backend-svc:80"
   photo_api_url: "https://picsum.photos"

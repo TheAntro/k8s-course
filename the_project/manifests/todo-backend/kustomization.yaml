@@ -1,0 +1,5 @@
+resources:
+  - db.yaml
+  - dbconfig.yaml
+  - deployment.yaml
+  - service.yaml

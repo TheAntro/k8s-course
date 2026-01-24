@@ -16,7 +16,7 @@ spec:
                 - name: WIKI_RANDOM_URL
                   value: "https://en.wikipedia.org/wiki/Special:Random"
                 - name: TODO_BACKEND_URL
-                  value: "http://todo-backend-svc:1235/todos"
+                  value: "http://todo-backend-svc:80/todos"
               command:
                 - /bin/sh
                 - -c

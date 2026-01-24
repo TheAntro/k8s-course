@@ -21,7 +21,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: todo
-          image: waltherbeach/todo-backend:26-01-5
+          image: waltherbeach/todo-backend
           ports:
             - containerPort: 5001
           env:
