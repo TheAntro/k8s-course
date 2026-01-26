@@ -6,7 +6,6 @@ metadata:
 spec:
   parentRefs:
     - name: todo-gateway
-      namespace: project
   rules:
     - matches:
         - path:

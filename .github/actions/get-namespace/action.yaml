@@ -1,0 +1,28 @@
+name: "Get K8S Namespace"
+description: "Determines and sanitizes the K8S namespace based on the branch name"
+outputs:
+  namespace:
+    description: "The sanitized namespace name"
+    value: ${{ steps.calc.outputs.namespace }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: calc
+      shell: bash
+      run: |
+        # Use github.event.ref for delete events, or github.ref_name for push events
+        REF_NAME="${{ github.ref_name }}"
+        if [ -z "$REF_NAME" ]; then
+          REF_NAME="${{ github.event.ref }}"
+        fi
+
+        if [[ "$REF_NAME" == "main" || "$REF_NAME" == "refs/heads/main" ]]; then
+          echo "namespace=project" >> $GITHUB_OUTPUT
+        else
+          # Strip 'refs/heads/' if present (common in delete events)
+          STRIPPED=$(echo "$REF_NAME" | sed 's|refs/heads/||')
+          # Sanitize: replace / with - and lowercase
+          CLEAN=$(echo "$STRIPPED" | sed 's/\//-/g' | tr '[:upper:]' '[:lower:]')
+          echo "namespace=$CLEAN" >> $GITHUB_OUTPUT
+        fi
