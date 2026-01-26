@@ -1,3 +1,5 @@
+In this exercise, the [github action](https://github.com/TheAntro/k8s-course/tree/3.6/.github/workflows) is handling the deployment (the `kubectl apply -k manifests` part).
+These are for reference for how to deploy from local machine.
 Create the cluster, namespace, volume and make app available
 
 ```bash
