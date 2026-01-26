@@ -11,18 +11,37 @@ runs:
     - id: calc
       shell: bash
       run: |
-        # Use github.event.ref for delete events, or github.ref_name for push events
-        REF_NAME="${{ github.ref_name }}"
-        if [ -z "$REF_NAME" ]; then
+        # 1. Identify the event type
+        EVENT_NAME="${{ github.event_name }}"
+
+        # 2. Assign the reference based on event type
+        if [[ "$EVENT_NAME" == "delete" ]]; then
+          # For delete, 'ref_name' is usually the default branch (main).
+          # 'event.ref' contains the actual deleted branch name.
           REF_NAME="${{ github.event.ref }}"
+        else
+          REF_NAME="${{ github.ref_name }}"
         fi
 
-        if [[ "$REF_NAME" == "main" || "$REF_NAME" == "refs/heads/main" ]]; then
+        # 3. Strip 'refs/heads/' prefix if it exists
+        STRIPPED=$(echo "$REF_NAME" | sed 's|refs/heads/||')
+
+        # 4. Logic for 'main' (Production)
+        if [[ "$STRIPPED" == "main" ]]; then
+          # ONLY return project if we aren't in a delete event
+          if [[ "$EVENT_NAME" == "delete" ]]; then
+             echo "Error: Attempted to delete 'main' branch context."
+             exit 1
+          fi
           echo "namespace=project" >> $GITHUB_OUTPUT
         else
-          # Strip 'refs/heads/' if present (common in delete events)
-          STRIPPED=$(echo "$REF_NAME" | sed 's|refs/heads/||')
-          # Sanitize: replace / with - and lowercase
-          CLEAN=$(echo "$STRIPPED" | sed 's/\//-/g' | tr '[:upper:]' '[:lower:]')
+          # 5. Sanitize feature branches
+          CLEAN=$(echo "$STRIPPED" | sed 's/\//-/g' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
+
+          if [[ -z "$CLEAN" || "$CLEAN" == "project" ]]; then
+            echo "Error: Sanitization resulted in an invalid or protected namespace."
+            exit 1
+          fi
+
           echo "namespace=$CLEAN" >> $GITHUB_OUTPUT
         fi

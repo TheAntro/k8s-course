@@ -1,0 +1,43 @@
+name: Cleanup Deleted Branch Namespace
+
+on: delete
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  CLUSTER_NAME: dwk-cluster
+  CLUSTER_ZONE: europe-north1-b
+
+jobs:
+  cleanup-namespace:
+    name: Delete Branch Namespace
+    runs-on: ubuntu-latest
+    if: github.event.ref_type == 'branch' && github.event.ref != 'main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Sanitized Namespace
+        id: get-ns
+        uses: ./.github/actions/get-namespace
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GKE_SA_KEY }}"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}
+          project_id: ${{ env.PROJECT_ID }}
+          location: ${{ env.CLUSTER_ZONE }}
+
+      - name: Delete Kubernetes Namespace
+        run: |
+          NAMESPACE=${{ steps.get-ns.outputs.namespace }}
+          echo "Initiating cleanup for namespace: $NAMESPACE"
+          kubectl delete namespace $NAMESPACE --ignore-not-found=true
