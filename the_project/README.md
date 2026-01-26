@@ -1,4 +1,4 @@
-In this exercise, the [github action](https://github.com/TheAntro/k8s-course/tree/3.7/.github/workflows) is handling the deployment (after gateway-api has been activated).
+In this exercise, the [github action](https://github.com/TheAntro/k8s-course/tree/3.8/.github/workflows) is handling the deployment and the clean up (after gateway-api has been activated).
 These are for reference for how to deploy from local machine.
 Create the cluster, namespace, volume and make app available
 
