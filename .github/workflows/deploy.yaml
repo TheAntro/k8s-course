@@ -2,7 +2,7 @@ name: Build and Deploy to GKE
 
 on:
   push:
-    branches: ["main"]
+    branches: ["**"]
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -23,6 +23,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Get Namespace
+        id: get-ns
+        uses: ./.github/actions/get-namespace
+
+      - name: Set Dynamic Environment Variables
+        run: |
+          NAMESPACE=${{ steps.get-ns.outputs.namespace }}
+          echo "K8S_NAMESPACE=$NAMESPACE" >> $GITHUB_ENV
+
       - id: "auth"
         uses: "google-github-actions/auth@v2"
         with:
@@ -33,7 +42,7 @@ jobs:
 
       - name: Set Full Image Names
         run: |
-          TAG=${{ github.sha }}
+          TAG="${{ env.K8S_NAMESPACE }}-${{ github.sha }}"
           BASE_URL=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}
 
           echo "TODO_IMAGE=$BASE_URL/todo:$TAG" >> $GITHUB_ENV
@@ -61,9 +70,10 @@ jobs:
           push: true
           tags: ${{ env.BACKEND_IMAGE }}
 
-      - name: Update Kustomize Image Tags
+      - name: Update Kustomize Manifests
         run: |-
           cd manifests
+          kustomize edit set namespace ${{ env.K8S_NAMESPACE }}
           kustomize edit set image waltherbeach/todo=${{ env.TODO_IMAGE }}
           kustomize edit set image waltherbeach/todo-backend=${{ env.BACKEND_IMAGE }}
 
@@ -74,17 +84,33 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
           location: ${{ env.CLUSTER_ZONE }}
 
+      - name: Prepare Namespace
+        run: |
+          # Create namespace if it doesn't exist
+          kubectl create namespace ${{ env.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+          # Set the namespace
+          kubectl config set-context --current --namespace=${{ env.K8S_NAMESPACE }}
+
+          # Create the database secret in the namespace if it doesn't exist
+          kubectl create secret generic todo-db-secret \
+            --namespace=${{ env.K8S_NAMESPACE }} \
+            --from-literal=POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy and Verify
         run: |-
-          kubectl apply -k manifests
+          kubectl apply -k manifests -n ${{ env.K8S_NAMESPACE }}
 
-          echo "Verifying Rollouts..."
-          kubectl rollout status deployment/todo-dep -n project --timeout=300s
-          kubectl rollout status deployment/todo-backend-dep -n project --timeout=120s
+          echo "Verifying Rollouts in namespace: ${{ env.K8S_NAMESPACE }}..."
+          kubectl rollout status deployment/todo-dep --timeout=300s
+          kubectl rollout status deployment/todo-backend-dep --timeout=120s
 
           echo "Deployment complete. Current Services:"
-          kubectl get services -n project -o wide
+          kubectl get services -o wide
+
           echo "Waiting for Gateway"
-          kubectl wait --for=jsonpath='{.status.addresses[0].value}' gateway/todo-gateway -n project --timeout=120s
+          kubectl wait --for=jsonpath='{.status.addresses[0].value}' gateway/todo-gateway --timeout=120s
+
           echo "Gateway Status"
-          kubectl get gateway -n project
+          kubectl get gateway
