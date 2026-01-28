@@ -1,2 +1,4 @@
 resources:
   - random-wiki-todo.yaml
+  - backup-sa.yaml
+  - backup.yaml

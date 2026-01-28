@@ -1,0 +1,15 @@
+services:
+  todo:
+    build:
+      context: ./apps/todo
+      dockerfile: Dockerfile
+
+  backend:
+    build:
+      context: ./apps/todo-backend
+      dockerfile: Dockerfile
+
+  backup:
+    build:
+      context: ./apps/todo-backup
+      dockerfile: Dockerfile

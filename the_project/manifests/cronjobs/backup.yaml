@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: todo-backup
+  namespace: project
+spec:
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: todo-backup-sa
+          containers:
+          - name: backup-worker
+            image: waltherbeach/todo-backup
+            env:
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                    name: todo-db-config
+                    key: DB_HOST
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                    name: todo-db-config
+                    key: DB_NAME
+            - name: BUCKET_NAME
+              value: "todo-postgres-backups-20260128"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-secret
+                  key: POSTGRES_PASSWORD
+          restartPolicy: OnFailure
