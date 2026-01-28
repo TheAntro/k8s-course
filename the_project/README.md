@@ -1,3 +1,8 @@
+# Image of Logs Explorer when uploading a new todo
+
+<img width="1403" height="664" alt="Screenshot 2026-01-28 at 21 17 55" src="https://github.com/user-attachments/assets/daa07b49-5604-4de9-b4f5-8363ced1b511" />
+
+
 # Cloud SQL vs Postgres in GKE
 
 In effect, the choice between using the managed Cloud SQL vs. a self-managed Postgres instance comes down to whether the cost savings from the self-managed solution are substantial enough to justify the time investment (i.e., also cost) needed to setup and manage the solution.
