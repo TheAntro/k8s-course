@@ -32,6 +32,13 @@ spec:
       containers:
         - name: postgres
           image: postgres:17
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
           env:
             - name: POSTGRES_DB
               valueFrom:

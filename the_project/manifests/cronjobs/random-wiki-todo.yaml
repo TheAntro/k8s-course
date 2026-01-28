@@ -12,6 +12,13 @@ spec:
           containers:
             - name: random-wiki
               image: curlimages/curl
+              resources:
+                requests:
+                  cpu: "10m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "100m"
+                  memory: "128Mi"
               env:
                 - name: WIKI_RANDOM_URL
                   value: "https://en.wikipedia.org/wiki/Special:Random"

@@ -28,6 +28,13 @@ spec:
       containers:
         - name: todo
           image: waltherbeach/todo
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
           volumeMounts:
             - name: cache
               mountPath: /app/cache
