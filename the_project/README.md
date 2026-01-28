@@ -28,11 +28,12 @@ Overall, the cost difference of 15% can be significant at high enough scale. How
 
 ---
 
-These are for reference for how to deploy from local machine.
+These are for reference for how to deploy from local machine. After `gcloud` commands, this is all handled by the Github Actions workflow.
 
 ```bash
-gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-micro
+gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-medium
 gcloud container clusters update dwk-cluster --location=europe-north1-b --gateway-api=standard
+gcloud container clusters update dwk-cluster --zone europe-north1-b --workload-pool=<PROJECT_ID>.svc.id.goog
 kubectl create namespace project
 kubens project
 kubectl create secret generic todo-db-secret --from-literal=POSTGRES_PASSWORD='<insert-password-here>' -n project

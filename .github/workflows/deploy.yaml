@@ -10,6 +10,7 @@ env:
   REPOSITORY: k8s-course
   CLUSTER_NAME: dwk-cluster
   CLUSTER_ZONE: europe-north1-b
+  BACKUP_BUCKET: todo-postgres-backups-20260128
 
 jobs:
   setup-build-deploy:
@@ -47,6 +48,7 @@ jobs:
 
           echo "TODO_IMAGE=$BASE_URL/todo:$TAG" >> $GITHUB_ENV
           echo "BACKEND_IMAGE=$BASE_URL/todo-backend:$TAG" >> $GITHUB_ENV
+          echo "BACKUP_IMAGE=$BASE_URL/todo-backup:$TAG" >> $GITHUB_ENV
 
       - name: Authenticate Docker
         run: gcloud auth configure-docker ${{ env.REGISTRY }}
@@ -54,28 +56,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push Todo
-        uses: docker/build-push-action@v5
+      - name: Build and Push Images
+        uses: docker/bake-action@v5
         with:
-          context: ./the_project/apps/todo
-          platforms: linux/amd64
           push: true
-          tags: ${{ env.TODO_IMAGE }}
-
-      - name: Build and Push Todo Backend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./the_project/apps/todo-backend
-          platforms: linux/amd64
-          push: true
-          tags: ${{ env.BACKEND_IMAGE }}
+          workdir: ./the_project
+          files: docker-compose.build.yaml
+          set: |
+            todo.tags=${{ env.TODO_IMAGE }}
+            backend.tags=${{ env.BACKEND_IMAGE }}
+            backup.tags=${{ env.BACKUP_IMAGE }}
 
       - name: Update Kustomize Manifests
         run: |-
           cd manifests
+          sed -i "s/\${PROJECT_ID}/${{ env.PROJECT_ID }}/g" kustomization.yaml
           kustomize edit set namespace ${{ env.K8S_NAMESPACE }}
           kustomize edit set image waltherbeach/todo=${{ env.TODO_IMAGE }}
           kustomize edit set image waltherbeach/todo-backend=${{ env.BACKEND_IMAGE }}
+          kustomize edit set image waltherbeach/todo-backup=${{ env.BACKUP_IMAGE }}
+
+      - name: Authorize Workload Identity
+        run: |
+          gcloud iam service-accounts add-iam-policy-binding pg-backup-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --role="roles/iam.workloadIdentityUser" \
+            --member="serviceAccount:${{ env.PROJECT_ID }}.svc.id.goog[${{ env.K8S_NAMESPACE }}/todo-backup-sa]"
 
       - name: Get GKE Credentials
         uses: google-github-actions/get-gke-credentials@v2

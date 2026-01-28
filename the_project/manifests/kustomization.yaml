@@ -17,3 +17,12 @@ images:
   - name: waltherbeach/todo-backend
     newName: waltherbeach/todo-backend
     newTag: 26-01-6
+
+patches:
+  - target:
+      kind: ServiceAccount
+      name: todo-backup-sa
+    patch: |-
+      - op: replace
+        path: /metadata/annotations/iam.gke.io~1gcp-service-account
+        value: pg-backup-sa@${PROJECT_ID}.iam.gserviceaccount.com
