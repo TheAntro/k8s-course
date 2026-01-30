@@ -2,7 +2,6 @@
 
 <img width="1403" height="664" alt="Screenshot 2026-01-28 at 21 17 55" src="https://github.com/user-attachments/assets/daa07b49-5604-4de9-b4f5-8363ced1b511" />
 
-
 # Cloud SQL vs Postgres in GKE
 
 In effect, the choice between using the managed Cloud SQL vs. a self-managed Postgres instance comes down to whether the cost savings from the self-managed solution are substantial enough to justify the time investment (i.e., also cost) needed to setup and manage the solution.
@@ -33,7 +32,7 @@ Overall, the cost difference of 15% can be significant at high enough scale. How
 
 ---
 
-These are for reference for how to deploy from local machine. After `gcloud` commands, this is all handled by the Github Actions workflow.
+These are mostly for reference for how to deploy from local machine. After `gcloud` commands, this is all handled by the Github Actions workflow. Finally there is a way to test for the exercise 4.2 readiness probes
 
 ```bash
 gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-medium
@@ -44,6 +43,8 @@ kubens project
 kubectl create secret generic todo-db-secret --from-literal=POSTGRES_PASSWORD='<insert-password-here>' -n project
 kubectl apply -k manifests
 kubectl get gateway --watch
+# Break db connection by changing the DB_NAME for todo-backend to see readiness probe in effect
+kubectl -n project set env deployment/todo-backend-dep DB_NAME=wrong_db_name
 ```
 
 Then access the app in http://<gateway-address>
