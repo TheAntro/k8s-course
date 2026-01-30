@@ -1,3 +1,6 @@
+A query to get the number of pods created by StatefulSets in the prometheus namespace:
+`count(kube_pod_info{namespace="prometheus", created_by_kind="StatefulSet"})`
+
 Create the cluster, namespace and secret, apply manifests:
 
 ```bash
