@@ -1,18 +1,28 @@
 import express from "express";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { db } from "./db/index.js";
+import { db, pool } from "./db/index.js";
 import { todos } from "./db/schema.js";
 import { z } from "zod";
 
 async function runMigrations() {
   console.log("⏳ Running migrations...");
-  try {
-    // This looks for the folder we copied in the Dockerfile
-    await migrate(db, { migrationsFolder: "./drizzle" });
-    console.log("✅ Migrations completed successfully.");
-  } catch (error) {
-    console.error("❌ Migration failed:", error);
-    process.exit(1); // Stop the container if migrations fail
+  let attempt = 0;
+  const maxDelay = 30000;
+  while (true) {
+    attempt += 1;
+    try {
+      await migrate(db, { migrationsFolder: "./drizzle" });
+      console.log("✅ Migrations completed successfully.");
+      break;
+    } catch (error) {
+      console.error(`❌ Migration attempt ${attempt} failed:`, error);
+      const delay = Math.min(
+        1000 * Math.pow(2, Math.min(attempt, 5)),
+        maxDelay,
+      );
+      console.log(`Retrying migrations in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 }
 
@@ -57,8 +67,30 @@ app.post("/todos", async (req, res) => {
   res.status(201).json(result[0]);
 });
 
-await runMigrations();
+async function isDbConnected(timeout = 2000) {
+  try {
+    await Promise.race([
+      pool.query("SELECT 1"),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("timeout")), timeout),
+      ),
+    ]);
+    return true;
+  } catch (err) {
+    console.error("DB connectivity check failed:", err);
+    return false;
+  }
+}
+
+app.get("/ready", async (_req, res) => {
+  const ok = await isDbConnected(2000);
+  if (ok) return res.status(200).json({ status: "ready" });
+  return res.status(503).json({ status: "not ready" });
+});
 
 app.listen(PORT, () => {
   console.log("Todo Backend listening on port " + PORT);
 });
+
+// Run migrations in background and keep retrying until they succeed.
+runMigrations();
