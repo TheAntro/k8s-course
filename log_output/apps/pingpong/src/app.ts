@@ -17,12 +17,23 @@ const db = drizzle(pool, { schema });
 
 async function runMigrations() {
   console.log("⏳ Running database migrations...");
-  try {
-    await migrate(db, { migrationsFolder: "./drizzle" });
-    console.log("✅ Migrations complete.");
-  } catch (err) {
-    console.error("❌ Migration failed:", err);
-    process.exit(1);
+  let attempt = 0;
+  const maxDelay = 30000; // cap backoff at 30s
+  while (true) {
+    attempt += 1;
+    try {
+      await migrate(db, { migrationsFolder: "./drizzle" });
+      console.log("✅ Migrations complete.");
+      break;
+    } catch (err) {
+      console.error(`❌ Migration attempt ${attempt} failed:`, err);
+      const delay = Math.min(
+        1000 * Math.pow(2, Math.min(attempt, 5)),
+        maxDelay,
+      );
+      console.log(`Retrying migrations in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 }
 
@@ -38,7 +49,6 @@ app.get("/pings", async (req, res) => {
 
   console.log("Requested for pings", "result", result);
 
-  // Handled the empty array case to prevent runtime crashes if row doesn't exist yet
   const count = result.length > 0 ? result[0].count : 0;
   res.json({ pings: count });
 });
@@ -72,8 +82,32 @@ app.get("/", async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-await runMigrations();
+async function isDbConnected(timeout = 2000) {
+  try {
+    await Promise.race([
+      pool.query("SELECT 1"),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("timeout")), timeout),
+      ),
+    ]);
+    return true;
+  } catch (err) {
+    console.error("DB connectivity check failed:", err);
+    return false;
+  }
+}
+
+app.get("/ready", async (_req, res) => {
+  const ok = await isDbConnected(2000);
+  if (ok) {
+    return res.status(200).json({ status: "ready" });
+  }
+  return res.status(503).json({ status: "not ready" });
+});
 
 app.listen(PORT, () => {
   console.log(`Pingpong listening on port ${PORT}`);
 });
+
+// Run migrations in background and keep retrying until they succeed.
+runMigrations();

@@ -1,13 +1,16 @@
-Create the cluster, enable Gateway API, create namespace and db secret, apply manifests, and get the Gateway url:
+Create the cluster, namespace and secret, apply manifests:
 
 ```bash
-gcloud container clusters create dwk-cluster --zone=europe-north1-b --cluster-version=1.32 --disk-size=32 --num-nodes=3 --machine-type=e2-micro
-gcloud container clusters update dwk-cluster --location=europe-north1-b --gateway-api=standard
+k3d cluster create --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2
 kubectl create namespace exercises
 kubens exercises
 kubectl create secret generic pingpong-db-secret --from-literal=POSTGRES_PASSWORD='<insert-password-here>' -n exercises
-kubectl apply -R -f manifests
-kubectl get gateway --watch
+kubectl apply -R -f manifests/pingpong
+kubectl apply -R -f manifests/hashgenerator
+kubectl apply -R -f manifests/shared
+# At this stage, apps' Status are Running but that they are not Ready.
+kubectl apply -R -f manifests/final
+# The apps' become ready after adding the database.
 ```
 
 Then access the pingpong app in http://<ingress-address-here>/pingpong

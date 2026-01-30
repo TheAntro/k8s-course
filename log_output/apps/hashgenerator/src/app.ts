@@ -53,6 +53,20 @@ async function readPingPongCount(): Promise<number> {
   }
 }
 
+async function checkPingPongReachable(): Promise<boolean> {
+  try {
+    const url = `${PINGPONG_URL}/pings`;
+    const resp = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+    return resp.ok;
+  } catch (err) {
+    console.error("PingPong reachability check failed:", err);
+    return false;
+  }
+}
+
 async function readInformation(): Promise<string> {
   const infoPath = process.env.INFO_PATH;
   if (!infoPath) {
@@ -69,6 +83,12 @@ async function readInformation(): Promise<string> {
 }
 
 const app = express();
+
+app.get('/ready', async (_req: express.Request, res: express.Response) => {
+  const ok = await checkPingPongReachable();
+  if (ok) return res.status(200).send('ok');
+  return res.status(503).send('pingpong unreachable');
+});
 
 app.use(async (req: express.Request, res: express.Response) => {
   const count = await readPingPongCount();

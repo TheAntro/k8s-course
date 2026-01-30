@@ -19,9 +19,18 @@ spec:
         runAsUser: 1000
       containers:
         - name: pingpong
-          image: waltherbeach/pingpong:26-01-16
+          image: waltherbeach/pingpong:26-01-18
           ports:
-            - containerPort: 5002
+            - name: http
+              containerPort: 5002
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
           env:
             - name: PORT
               value: "5002"
